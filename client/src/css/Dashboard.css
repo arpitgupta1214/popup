@@ -1,0 +1,201 @@
+.ui_cards_solid_card {
+  background: #f9c85f;
+  box-shadow: 8px 8px 0px #ffffff2e, -6px -6px 16px #43433485;
+  border-radius: 15px;
+
+  padding: 22px;
+}
+.ui_cards_solid_card.card1 {
+  background-color: #fff;
+  box-shadow: 8px 8px 0px #ffffff2e, -6px -6px 16px #43433485;
+  border-radius: 15px;
+
+  padding: 22px;
+}
+.ui_cards_solid_card.card1 h5 {
+  color: #242729 !important;
+}
+.ui_cards_solid_card.card1 p {
+  color: #242729 !important;
+}
+
+.ui_cards_solid_card.card1 span {
+  color: #242729 !important;
+  font-weight: 700;
+}
+
+h6.unbounce_total {
+  color: #242729 !important;
+}
+
+.ui_cards_solid_card h5 {
+  color: #242729;
+  font-size: 16px;
+  margin-bottom: 0px !important;
+  padding-bottom: 0px !important;
+  margin-top: 0px !important;
+  font-weight: bold;
+  font-family: Poppins;
+  font-weight: 500;
+}
+.ui_cards_solid_card p {
+  line-height: 22px;
+  font-size: 44px;
+  text-align: center;
+  color: #242729;
+  font-weight: 600;
+  margin: 20px;
+}
+
+.ui_cards_solid_card h6 {
+  font-size: 16px;
+  color: #242729;
+  padding-top: 0px !important;
+  font-family: "Poppins";
+  text-align: right;
+}
+
+.ui_cards_solid_card h6 span {
+  color: #242729;
+  padding-left: 5px;
+  font-size: 16px;
+  padding-right: 5px;
+  font-weight: 700;
+}
+
+.unbounces {
+  margin-top: 22px;
+}
+.Campaigns {
+  margin-top: 25px;
+}
+
+.TODAY-9MAY2020_bg {
+  width: 100%;
+  background: #242729;
+  box-shadow: 8px 8px 0px #ffffff2e, -6px -6px 16px #43433485;
+  border-radius: 20px;
+  padding: 1rem 18px 0px 18px;
+  height: 33.2rem;
+}
+._9MAY202_button {
+  background: #f9c85f;
+  /* box-shadow: 6px 6px 16px #000000, -6px -6px 16px #434343; */
+  border-radius: 4px;
+  width: 100%;
+  color: #242729;
+  outline: none !important;
+  border: none !important;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 10px 0px 10px 1px;
+  font-family: Poppins;
+  margin-bottom: 0.8rem;
+}
+._9MAY202_span {
+  font-size: 19px;
+  line-height: 22px;
+  color: #456078;
+  padding-left: 5px;
+}
+.live_content {
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+}
+.content_scroll {
+  overflow-y: scroll;
+  height: 25rem;
+  padding-top: 0.8rem;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.live_info p {
+  padding-right: 1.5rem;
+}
+
+.Live.Updates {
+  margin-top: 25px;
+}
+._9MAY202_button1 {
+  background: #f9c85f;
+  /* box-shadow: 6px 6px 16px #000000, -6px -6px 16px #434343; */
+  border-radius: 4px;
+  width: 100%;
+  color: #242729;
+  outline: none !important;
+  border: none !important;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 10px 0px 10px 1px;
+  font-family: Poppins;
+  margin-bottom: 0.8rem;
+}
+
+.senders {
+  background-color: #f9c85f;
+  height: 16rem;
+  border-radius: 15px;
+  box-shadow: 8px 8px 0px #ffffff2e, -6px -6px 16px #43433485;
+}
+.senders h2 {
+  font-size: 16px;
+  font-family: Poppins;
+  font-weight: 500;
+  color: #242729;
+  padding-left: 3rem;
+  padding-top: 2.5rem;
+}
+.senders h4 {
+  text-align: center;
+  color: #000;
+  font-size: 32px;
+  font-family: Poppins;
+  font-weight: 700;
+  padding-top: 0.8rem;
+}
+.senders h6 {
+  font-size: 16px;
+  font-family: Poppins;
+  text-align: right;
+  padding-right: 2rem;
+  color: #242729;
+  padding-top: 1rem;
+}
+.senders h6 span {
+  padding-left: 0.5rem;
+  color: #000;
+  padding-right: 0.5rem;
+  font-weight: 700;
+}
+.senders.receipts {
+  background-color: #f1f1f1;
+}
+.senders.campaigns {
+  background-color: #f9c85f;
+}
+
+.senders.templates {
+  background-color: #f1f1f1;
+}
+
+.sidebar {
+  transition: all 0.2s ease-in-out;
+}
