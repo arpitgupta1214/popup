@@ -1,17 +1,26 @@
 const Smtp = require("../models/smtpModel");
-
+// newSmtp = new Smtp({
+//   host: "sampleHost",
+//   username: "sampleUser",
+//   category: "cat1",
+//   valid: "valid",
+//   type: "smtp",
+//   status: "active",
+// });
+// newSmtp.save();
+// Smtp.deleteMany().exec();
 const smtpCtrl = {
   getSmtp: async (req, res) => {
     const keyword = req.query.keyword
       ? {
-          domainName: {
+          host: {
             $regex: req.query.keyword,
             $options: "i",
           },
         }
       : {};
+
     const pageSize = Number(req.query.pageSize) || 10;
-    let page = Number(req.query.page) || 1;
     const sort = req.query.sortField
       ? {
           [req.query.sortField]: req.query.sortDirection || 1,
@@ -19,7 +28,9 @@ const smtpCtrl = {
       : {};
     const count = await Smtp.countDocuments({ ...keyword });
     const totalPages = Math.ceil(count / pageSize);
+    let page = Number(req.query.page) || 1;
     page = page > totalPages ? totalPages : page;
+    page = page <= 0 ? 1 : page;
 
     const smtpLists = await Smtp.find({ ...keyword }, null, {
       sort,
@@ -77,21 +88,27 @@ const smtpCtrl = {
   },
   createSmtp: async (req, res) => {
     try {
-      const {host,userName,category } = req.body;
-      const smtp = new Smtp({
-        host,
-        userName,
-        category
-      });
+      const smtp = new Smtp(req.body);
       await smtp.save();
       res.json({ msg: "Created a Note" });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
   },
-
+  editSmtp: async (req, res) => {
+    try {
+      Smtp.updateOne({ _id: req.body["_id"] }, req.body).exec();
+      res.json({ msg: "Updated a Note" });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  getOptions: async (req, res) => {
+    try {
+      res.json({ category: ["cat1", "cat2"], status: ["active", "inactive"] });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
 };
 module.exports = smtpCtrl;
-
-
-

@@ -1,0 +1,38 @@
+button.tempButton {
+  background: white;
+  padding: 5px;
+  margin: 5px;
+  color: black;
+}
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30%;
+  background-color: bisque;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+.popup.active {
+  display: flex;
+}
+.popup form {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.popup form * {
+  width: 100%;
+}
+.popup * {
+  margin: 5px;
+  padding: 5px;
+}
+.popup button {
+  width: 20%;
+}
