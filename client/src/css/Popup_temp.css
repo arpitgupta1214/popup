@@ -1,3 +1,6 @@
+* {
+  box-sizing: border-box;
+}
 button.tempButton {
   background: white;
   padding: 5px;
@@ -26,13 +29,20 @@ button.tempButton {
   flex-direction: column;
   align-items: center;
 }
-.popup form * {
+.popup form input,
+.popup form select {
   width: 100%;
-}
-.popup * {
-  margin: 5px;
+  margin: 5px 0;
   padding: 5px;
 }
 .popup button {
   width: 20%;
+}
+.popup form .category {
+  width: 100%;
+  display: flex;
+}
+.popup form .category select {
+  padding: 5px;
+  width: 79%;
 }

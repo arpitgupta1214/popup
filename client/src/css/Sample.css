@@ -4,7 +4,7 @@
   font-size: 20px;
 } */
 .app {
-  height: 753px;
+  /* height: 753px; */
   position: relative;
   padding: 0px;
 
@@ -206,7 +206,7 @@ li.icon_active {
 }
 
 .site-nav-icons li:hover + .hide1 {
- display: block;
+  display: block;
   padding: 8px 12px;
   font-size: 16px;
   font-weight: bold;

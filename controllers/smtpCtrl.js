@@ -1,14 +1,37 @@
 const Smtp = require("../models/smtpModel");
-// newSmtp = new Smtp({
-//   host: "sampleHost",
-//   username: "sampleUser",
-//   category: "cat1",
-//   valid: "valid",
-//   type: "smtp",
-//   status: "active",
+const Category = require("../models/category");
+const category = require("../models/category");
+
+function makeid(length) {
+  var result = "";
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+// newCategory = new Category({
+//   name: "cat1",
 // });
-// newSmtp.save();
-// Smtp.deleteMany().exec();
+// newCategory.save();
+// newCategory = new Category({
+//   name: "cat2",
+// });
+// newCategory.save();
+// for (let i = 0; i < 200; i++) {
+//   newSmtp = new Smtp({
+//     host: makeid(5),
+//     username: makeid(10),
+//     category: Math.random() > 0.5 ? "cat1" : "cat2",
+//     valid: Math.random() > 0.5 ? "valid" : "invalid",
+//     type: "smtp",
+//     status: Math.random() > 0.5 ? "active" : "inactive",
+//   });
+//   newSmtp.save();
+// }
+
 const smtpCtrl = {
   getSmtp: async (req, res) => {
     const keyword = req.query.keyword
@@ -105,7 +128,19 @@ const smtpCtrl = {
   },
   getOptions: async (req, res) => {
     try {
-      res.json({ category: ["cat1", "cat2"], status: ["active", "inactive"] });
+      const resData = { category: [], status: ["active", "inactive"] };
+      const results = await Category.find().lean();
+      results.forEach((result) => resData.category.push(result.name));
+      res.json(resData);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  createCategory: async (req, res) => {
+    try {
+      const newCategory = new Category(req.body);
+      await newCategory.save();
+      res.json({ msg: "Created a Category" });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
