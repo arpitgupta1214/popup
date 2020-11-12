@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../css/Popup_temp.css";
 import "../css/Domain.css";
 import axios from "axios";
+import Popup from "./Popup";
 
 export default function Senders() {
   const backEndURL = "http://localhost:5000";
@@ -52,91 +53,297 @@ export default function Senders() {
   };
 
   const [popupConfig, setPopupConfig] = useState({
-    displayPopup: false,
-    options: { category: [], status: [] },
-    formData: {
-      _id: "",
-      host: "",
-      username: "",
-      category: "",
-      valid: "",
-      type: "",
-      status: "",
-    },
-    inputFields: ["host", "username", "type", "category", "valid", "status"],
+    display: false,
+    fields: [
+      { name: "_id", value: "", type: "text", visible: false },
+      { name: "host", value: "", type: "text", visible: true },
+      {
+        name: "username",
+        value: "",
+        type: "text",
+        visible: true,
+      },
+      {
+        name: "category",
+        value: "",
+        type: "select",
+        options: [],
+        visible: true,
+        addable: true,
+        onAdd: () => {
+          setPopupConfig((popupConfig) => ({ ...popupConfig, display: false }));
+          setCategoryPopupConfig((categoryPopupConfig) => ({
+            ...categoryPopupConfig,
+            display: true,
+          }));
+        },
+      },
+      { name: "valid", value: "", type: "text", visible: true },
+      { name: "type", value: "smtp", type: "text", visible: false },
+      {
+        name: "status",
+        value: "",
+        type: "select",
+        options: [],
+        visible: true,
+      },
+    ],
   });
 
-  const clearForm = () => {
+  const clearForm = (setPopupConfig, avoid) =>
     setPopupConfig((popupConfig) => {
-      let formData = popupConfig.formData;
-      for (let field in formData) {
-        if (field != "status" && field != "category") {
-          formData[field] = "";
+      let fields = popupConfig.fields;
+      fields.forEach((field) => {
+        if (avoid && avoid.indexOf(field.name) > -1) {
+          return;
         }
-      }
-      if ("_id" in formData) delete formData["_id"];
-      ["status", "category"].forEach((field) => {
-        formData[field] =
-          field in popupConfig.options ? popupConfig.options[field][0] : "";
+
+        switch (field.type) {
+          case "text":
+            field.value = "";
+            break;
+          case "select":
+            field.value = field.options.length > 0 ? field.options[0] : "";
+            break;
+          default:
+            field.value = "";
+            break;
+        }
       });
-      return { ...popupConfig, formData };
+      return { ...popupConfig, fields };
     });
-  };
-  const getOptions = async () => {
+
+  const getOptions = async (setPopupConfig) => {
     const res = await fetch(`${backEndURL}/api/smtp/options`);
     const options = await res.json();
-    let formData = popupConfig.formData;
-    setPopupConfig({ ...popupConfig, options, formData });
+
+    setPopupConfig((popupConfig) => {
+      const fields = popupConfig.fields;
+      for (let optionField in options) {
+        fields.find((field) => field.name === optionField).options =
+          options[optionField];
+      }
+      return { ...popupConfig, fields };
+    });
   };
 
-  const formSubmit = async () => {
+  const dataFromConfig = (popupConfig) => {
+    const formData = {};
+    popupConfig.fields.forEach((field) => {
+      if (field.value) {
+        formData[field.name] = field.value;
+      }
+    });
+    return formData;
+  };
+
+  const submitForm = async () => {
+    const formData = {};
+
+    popupConfig.fields.forEach((field) => {
+      console.log(popupConfig.fields, field);
+      if (field.value) {
+        formData[field.name] = field.value;
+      }
+    });
+    console.log(formData);
+
     await fetch(
-      `${backEndURL}/api/smtp/${popupConfig.formData["_id"] ? "edit" : "add"}`,
+      `${backEndURL}/api/smtp/${
+        popupConfig.fields.find((field) => field.name === "_id").value
+          ? "edit"
+          : "add"
+      }`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(popupConfig.formData),
+        body: JSON.stringify(formData),
       }
     );
-    clearForm();
+    clearForm(setPopupConfig, ["type"]);
     setPopupConfig((popupConfig) => {
-      return { ...popupConfig, displayPopup: false };
+      return { ...popupConfig, display: false };
     });
     fetchData();
   };
-  useEffect(() => {
-    if (popupConfig.displayPopup) {
-      getOptions();
-    }
-  }, [popupConfig.displayPopup]);
+
+  const cancelForm = () => {
+    clearForm(setPopupConfig, ["type"]);
+    setPopupConfig((popupConfig) => {
+      return { ...popupConfig, display: false };
+    });
+  };
+
+  const changeFormField = (fieldName, value) => {
+    setPopupConfig((popupConfig) => {
+      const fields = popupConfig.fields;
+      fields.find((field) => field.name === fieldName).value = value;
+      return { ...popupConfig, fields };
+    });
+  };
 
   const [categoryPopupConfig, setCategoryPopupConfig] = useState({
     display: false,
-    formData: {
-      name: "",
-    },
-    inputFields: ["name"],
+    fields: [
+      { name: "name", type: "text", visible: true, value: "" },
+      {
+        name: "category",
+        type: "select",
+        options: ["IP Category", "Non-IP Category"],
+        visible: true,
+        value: "IP Category",
+      },
+    ],
   });
 
   const clearCategoryForm = () => {
-    setCategoryPopupConfig({
-      ...categoryPopupConfig,
-      formData: { ...categoryPopupConfig.formData, name: "" },
-    });
+    clearForm(setCategoryPopupConfig);
   };
 
-  const categoryFormSubmit = async () => {
+  const submitCategoryForm = async () => {
+    const formData = dataFromConfig(categoryPopupConfig);
     await fetch(`${backEndURL}/api/smtp/addcategory`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(categoryPopupConfig.formData),
+      body: JSON.stringify(formData),
     });
-    clearCategoryForm();
+    clearForm(setCategoryPopupConfig);
     setCategoryPopupConfig((categoryPopupConfig) => {
       return { ...categoryPopupConfig, display: false };
     });
-    setPopupConfig({ ...popupConfig, displayPopup: true });
+    setPopupConfig({ ...popupConfig, display: true });
   };
+  const cancelCategoryForm = () => {
+    clearCategoryForm();
+    setPopupConfig((popupConfig) => {
+      return { ...popupConfig, display: true };
+    });
+    setCategoryPopupConfig((categoryPopupConfig) => {
+      return { ...categoryPopupConfig, display: false };
+    });
+  };
+  const changeCategoryFormField = (fieldName, value) => {
+    setCategoryPopupConfig((categoryPopupConfig) => {
+      const fields = categoryPopupConfig.fields;
+      fields.find((field) => field.name === fieldName).value = value;
+      return { ...categoryPopupConfig, fields };
+    });
+  };
+
+  const [senderPopupConfig, setSenderPopupConfig] = useState({
+    display: false,
+    fields: [
+      { name: "_id", value: "", type: "text", visible: false },
+      {
+        name: "host",
+        displayName: "SMTP Host",
+        value: "",
+        type: "text",
+        visible: true,
+      },
+      {
+        name: "username",
+        displayName: "Email",
+        value: "",
+        type: "text",
+        visible: true,
+      },
+      {
+        name: "port",
+        displayName: "Port",
+        value: "",
+        type: "text",
+        visible: true,
+      },
+      {
+        name: "category",
+        value: "",
+        type: "select",
+        options: [],
+        visible: true,
+        addable: true,
+        onAdd: () => {
+          setSenderPopupConfig((senderPopupConfig) => ({
+            ...senderPopupConfig,
+            display: false,
+          }));
+          setCategoryPopupConfig((categoryPopupConfig) => ({
+            ...categoryPopupConfig,
+            display: true,
+          }));
+        },
+      },
+      { name: "valid", value: "", type: "text", visible: true },
+      { name: "type", value: "postal", type: "text", visible: false },
+      {
+        name: "status",
+        value: "",
+        type: "select",
+        options: [],
+        visible: true,
+      },
+    ],
+  });
+
+  const clearSenderForm = () => {
+    clearForm(setSenderPopupConfig, ["type"]);
+  };
+
+  const submitSenderForm = async () => {
+    const formData = dataFromConfig(senderPopupConfig);
+    console.log(formData);
+    await fetch(
+      `${backEndURL}/api/smtp/${
+        senderPopupConfig.fields.find((field) => field.name === "_id").value
+          ? "edit"
+          : "add"
+      }`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      }
+    );
+    clearSenderForm();
+    setSenderPopupConfig((senderPopupConfig) => ({
+      ...senderPopupConfig,
+      display: false,
+    }));
+    fetchData();
+  };
+  const cancelSenderForm = () => {
+    clearCategoryForm();
+    setSenderPopupConfig((senderPopupConfig) => ({
+      ...senderPopupConfig,
+      display: false,
+    }));
+  };
+  const changeSenderFormField = (fieldName, value) => {
+    setSenderPopupConfig((senderPopupConfig) => {
+      const fields = senderPopupConfig.fields;
+      fields.find((field) => field.name === fieldName).value = value;
+      return { ...senderPopupConfig, fields };
+    });
+  };
+
+  useEffect(() => {
+    getOptions(setPopupConfig);
+    getOptions(setSenderPopupConfig);
+  }, [popupConfig.display, senderPopupConfig.display]);
+
+  const editForm = (setPopupConfig, post) => {
+    setPopupConfig((popupConfig) => {
+      const fields = popupConfig.fields;
+      for (let i in post) {
+        let configField = fields.find((field) => field.name === i);
+        if (configField) {
+          configField.value = post[i];
+        }
+      }
+      return { ...popupConfig, display: true, fields };
+    });
+  };
+
   return (
     <div>
       <div>
@@ -148,7 +355,6 @@ export default function Senders() {
               <select
                 class="en_selectbox"
                 onChange={(e) => {
-                  console.log(e.target.value);
                   setConfig({ ...config, pageSize: e.target.value });
                 }}
               >
@@ -166,7 +372,19 @@ export default function Senders() {
             <button
               class="btn issues_history_dark"
               onClick={() => {
-                setPopupConfig({ ...popupConfig, displayPopup: true });
+                clearForm(setPopupConfig, ["type"]);
+                setPopupConfig((popupConfig) => ({
+                  ...popupConfig,
+                  display: true,
+                }));
+                setCategoryPopupConfig((categoryPopupConfig) => ({
+                  ...categoryPopupConfig,
+                  display: false,
+                }));
+                setSenderPopupConfig((senderPopupConfig) => ({
+                  ...senderPopupConfig,
+                  display: false,
+                }));
               }}
             >
               Add New Domain
@@ -177,7 +395,24 @@ export default function Senders() {
           </div>
 
           <div>
-            <button class="btn issues_history_dark">
+            <button
+              class="btn issues_history_dark"
+              onClick={() => {
+                clearForm(setSenderPopupConfig, ["type"]);
+                setPopupConfig((popupConfig) => ({
+                  ...popupConfig,
+                  display: false,
+                }));
+                setCategoryPopupConfig((categoryPopupConfig) => ({
+                  ...categoryPopupConfig,
+                  display: false,
+                }));
+                setSenderPopupConfig((senderPopupConfig) => ({
+                  ...senderPopupConfig,
+                  display: true,
+                }));
+              }}
+            >
               Import Senders
               <span>
                 <i class="fa fa-download" aria-hidden="true"></i>
@@ -248,11 +483,14 @@ export default function Senders() {
                   <button
                     style={{ background: "white", color: "black" }}
                     onClick={() => {
-                      setPopupConfig({
-                        ...popupConfig,
-                        displayPopup: true,
-                        formData: { ...post },
-                      });
+                      if (!post.type) {
+                        return;
+                      }
+                      if (post.type === "smtp") {
+                        editForm(setSenderPopupConfig, post);
+                      } else if (post.type === "postal") {
+                        editForm(setPopupConfig, post);
+                      }
                     }}
                   >
                     Edit
@@ -315,157 +553,43 @@ export default function Senders() {
             </a>
           </p>
         </div>
-        <div className={`popup ${popupConfig.displayPopup ? "active" : ""}`}>
-          <form>
-            {popupConfig.inputFields.map((head) => {
-              if (head === "status") {
-                return (
-                  <select
-                    key={`input${head}`}
-                    placeholder={head}
-                    name={head}
-                    value={popupConfig.formData[head]}
-                    onChange={(e) => {
-                      setPopupConfig({
-                        ...popupConfig,
-                        formData: {
-                          ...popupConfig.formData,
-                          [head]: e.target.value,
-                        },
-                      });
-                    }}
-                  >
-                    {popupConfig.options[head].map((option) => (
-                      <option value={option}>{option}</option>
-                    ))}
-                  </select>
-                );
-              } else if (head === "category") {
-                return (
-                  <div className="category">
-                    <select
-                      key={`input${head}`}
-                      placeholder={head}
-                      name={head}
-                      value={popupConfig.formData[head]}
-                      onChange={(e) => {
-                        setPopupConfig({
-                          ...popupConfig,
-                          formData: {
-                            ...popupConfig.formData,
-                            [head]: e.target.value,
-                          },
-                        });
-                      }}
-                    >
-                      {popupConfig.options[head].map((option) => (
-                        <option value={option}>{option}</option>
-                      ))}
-                    </select>
-                    <button
-                      key={`addCategoryButton`}
-                      className="tempButton"
-                      type="button"
-                      onClick={() => {
-                        setPopupConfig({ ...popupConfig, displayPopup: false });
-                        setCategoryPopupConfig({
-                          ...categoryPopupConfig,
-                          display: true,
-                        });
-                      }}
-                    >
-                      +
-                    </button>
-                  </div>
-                );
-              } else {
-                return (
-                  <input
-                    key={`input${head}`}
-                    type="text"
-                    placeholder={head}
-                    name={head}
-                    value={popupConfig.formData[head]}
-                    onChange={(e) => {
-                      setPopupConfig({
-                        ...popupConfig,
-                        formData: {
-                          ...popupConfig.formData,
-                          [head]: e.target.value,
-                        },
-                      });
-                    }}
-                  ></input>
-                );
-              }
-            })}
-          </form>
-          <button
-            key={`cancelFormButton`}
-            className="tempButton"
-            onClick={() => {
-              clearForm();
-              setPopupConfig((popupConfig) => {
-                return { ...popupConfig, displayPopup: false };
-              });
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            key={`submitFormButton`}
-            className="tempButton"
-            onClick={formSubmit}
-          >
-            {popupConfig.formData["_id"] ? "Edit" : "Add"}
-          </button>
-        </div>
-        <div
-          className={`popup categoryPopup ${
-            categoryPopupConfig.display ? "active" : ""
-          }`}
-        >
-          <form>
-            <input
-              type="text"
-              placeholder="Category Name"
-              value={categoryPopupConfig.formData.name}
-              onChange={(e) =>
-                setCategoryPopupConfig({
-                  ...categoryPopupConfig,
-                  formData: {
-                    ...categoryPopupConfig.formData,
-                    name: e.target.value,
-                  },
-                })
-              }
-            ></input>
-            <select>
-              <option value="nonip">Non IP Category</option>
-              <option value="ip">IP Category</option>
-            </select>
-          </form>
-          <button
-            key={`cancelCategoryFormButton`}
-            className="tempButton"
-            onClick={() => {
-              clearCategoryForm();
-              setCategoryPopupConfig((categoryPopupConfig) => {
-                return { ...categoryPopupConfig, display: false };
-              });
-              setPopupConfig({ ...popupConfig, displayPopup: true });
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            key={`submitCategoryFormButton`}
-            className="tempButton"
-            onClick={() => categoryFormSubmit()}
-          >
-            {"Add"}
-          </button>
-        </div>
+        {popupConfig.display ? (
+          <Popup
+            divKey="domainPopup"
+            fields={popupConfig.fields}
+            changeFieldValue={changeFormField}
+            onCancel={cancelForm}
+            onSubmit={submitForm}
+            addButtonText={
+              popupConfig.fields.find((field) => field.name === "_id").value
+                ? "Edit"
+                : "Add"
+            }
+          ></Popup>
+        ) : null}
+        {categoryPopupConfig.display ? (
+          <Popup
+            divKey="categoryPopup"
+            fields={categoryPopupConfig.fields}
+            changeFieldValue={changeCategoryFormField}
+            onCancel={cancelCategoryForm}
+            onSubmit={submitCategoryForm}
+          ></Popup>
+        ) : null}
+        {senderPopupConfig.display ? (
+          <Popup
+            divKey="senderPopup"
+            fields={senderPopupConfig.fields}
+            changeFieldValue={changeSenderFormField}
+            onCancel={cancelSenderForm}
+            onSubmit={submitSenderForm}
+            addButtonText={
+              popupConfig.fields.find((field) => field.name === "_id").value
+                ? "Edit"
+                : "Add"
+            }
+          ></Popup>
+        ) : null}
       </div>
     </div>
   );

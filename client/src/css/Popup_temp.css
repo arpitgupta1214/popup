@@ -6,9 +6,10 @@ button.tempButton {
   padding: 5px;
   margin: 5px;
   color: black;
+  width: 20%;
 }
 .popup {
-  display: none;
+  display: flex;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -20,29 +21,29 @@ button.tempButton {
   justify-content: center;
   padding: 10px;
 }
-.popup.active {
-  display: flex;
-}
+
 .popup form {
   width: 80%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.popup form input,
-.popup form select {
+.popup form .input {
   width: 100%;
   margin: 5px 0;
-  padding: 5px;
 }
-.popup button {
-  width: 20%;
-}
-.popup form .category {
+.popup form .input > * {
   width: 100%;
-  display: flex;
-}
-.popup form .category select {
   padding: 5px;
-  width: 79%;
+}
+.popup form .input.addable {
+  display: flex;
+  justify-content: space-between;
+}
+.popup form .input.addable > *:nth-child(1) {
+  width: 78%;
+}
+.popup form .input.addable > button {
+  width: 20%;
+  margin: 0;
 }
